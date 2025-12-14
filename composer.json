@@ -1,0 +1,42 @@
+{
+  "name": "xtro123/wpi",
+  "description": "WordPress Import Tool for Evolution CMS 3.1.*",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "xtro123",
+      "email": "dev@example.com"
+    }
+  ],
+  "keywords": [
+    "evolutioncms",
+    "wordpress",
+    "import",
+    "migration"
+  ],
+  "require": {
+    "php": "^8.0",
+    "evolution-cms/evolution": "3.1.*"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/xtro123/wpi"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Xtro123\\Wpi\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Xtro123\\Wpi\\WpiServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
