@@ -92,7 +92,7 @@ php core/artisan wpi:import export_data.xml --rollback
 ```
 
 ## Delete
-- Remove xtro123/wpi requirements and repositories from core/custom/composer.json
+- Remove xtro123/wpi requirements and repositories from core/custom/composer.json `composer remove xtro123/wpi`
 - also see core/custom/config/app/providers
 - Run composer update in core to remove package files
 
