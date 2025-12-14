@@ -35,7 +35,7 @@ Add the package repository to your `core/custom/composer.json`:
         "xtro123/wpi": "dev-main"
     },
     "autoload": {
-        "psr-4": []
+        "psr-4": {}
     }
 }
 ```
