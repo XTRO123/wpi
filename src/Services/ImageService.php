@@ -28,9 +28,9 @@ class ImageService
     {
         $this->basePath = dirname(__DIR__, 6) . "/assets/images/wpi";
         $this->baseUrl = "assets/images/wpi";
-        
+
         if (!file_exists($this->basePath)) {
-             mkdir($this->basePath, 0755, true);
+            mkdir($this->basePath, 0755, true);
         }
     }
 
@@ -58,6 +58,7 @@ class ImageService
         // Rate Limiting
         usleep(200000);
 
+        /*
         if (!str_starts_with($url, "https")) {
             if (str_starts_with($url, "http")) {
                 $url = str_replace("http://", "https://", $url);
@@ -65,22 +66,23 @@ class ImageService
                 return $url; 
             }
         }
+        */
 
         try {
             // Check for existence BEFORE request to speed up
             $pathInfo = pathinfo(parse_url($url, PHP_URL_PATH));
             $name = $pathInfo["filename"] ?? "image";
             $ext = $pathInfo["extension"] ?? null;
-            
+
             if (preg_match("#/(\d{4})/(\d{2})/#", $url, $matches)) {
                 $datePath = $matches[1] . "/" . $matches[2];
             } else {
                 $datePath = date("Y/m");
             }
-            
+
             $fullDir = $this->basePath . "/" . $datePath;
             $cleanName = Str::slug($name);
-            
+
             // If we have an extension, we can check if file exists immediately
             if ($ext && !$this->overwriteExisting) {
                 $localPath = $fullDir . "/" . $cleanName . "." . $ext;
@@ -105,21 +107,29 @@ class ImageService
 
             $http_response_header = null;
             $content = @file_get_contents($url, false, $context);
-            
+
             if ($content === false) {
-                 $error = error_get_last();
-                 $msg = "Failed to open URL $url: " . ($error["message"] ?? "Unknown error");
-                 $this->errors[] = $msg;
-                 Log::error("[WPI] " . $msg);
-                 return $url;
+                $error = error_get_last();
+                $msg = "Failed to open URL $url: " . ($error["message"] ?? "Unknown error");
+                $this->errors[] = $msg;
+                Log::error("[WPI] " . $msg);
+                return $url;
             }
 
             $currentContentType = "";
 
             // Validate Headers
             if (isset($http_response_header)) {
-                if (!preg_match("#HTTP/\d\.\d\s+200\s+OK#i", $http_response_header[0])) {
-                    $msg = "HTTP Error for $url: " . $http_response_header[0];
+                // Find the LAST HTTP status code (to handle redirects like 301 -> 200)
+                $finalStatus = "";
+                foreach ($http_response_header as $header) {
+                    if (str_starts_with($header, "HTTP/")) {
+                        $finalStatus = $header;
+                    }
+                }
+
+                if (!empty($finalStatus) && !preg_match("#HTTP/\d\.\d\s+200\s+OK#i", $finalStatus)) {
+                    $msg = "HTTP Error for $url: " . $finalStatus;
                     $this->errors[] = $msg;
                     Log::warning("[WPI] " . $msg);
                     return $url;
@@ -128,11 +138,11 @@ class ImageService
                 $validType = false;
                 $currentContentType = "unknown";
                 $isPdf = false;
-                
+
                 foreach ($http_response_header as $header) {
                     if (stripos($header, "Content-Type:") === 0) {
                         $currentContentType = trim(substr($header, 13));
-                        
+
                         // Check for Image
                         if (str_starts_with(strtolower($currentContentType), "image/")) {
                             $validType = true;
@@ -145,33 +155,33 @@ class ImageService
                                 $isPdf = true;
                             }
                         }
-                        
+
                         break;
                     }
                 }
 
                 if (!$validType) {
                     if ($isPdf) {
-                         $msg = "Skipped PDF $url (use --pdf to enable)";
+                        $msg = "Skipped PDF $url (use --pdf to enable)";
                     } else {
-                         $msg = "Invalid Content-Type for $url: $currentContentType";
+                        $msg = "Invalid Content-Type for $url: $currentContentType";
                     }
                     $this->errors[] = $msg;
                     Log::warning("[WPI] " . $msg);
                     return $url;
                 }
             } else {
-                 $msg = "No response headers for $url";
-                 $this->errors[] = $msg;
-                 Log::warning("[WPI] " . $msg);
-                 return $url;
+                $msg = "No response headers for $url";
+                $this->errors[] = $msg;
+                Log::warning("[WPI] " . $msg);
+                return $url;
             }
 
             // Deep Validation
             $isPdfContent = (substr($content, 0, 4) === "%PDF");
 
             if ($this->allowPdf && $isPdfContent) {
-                 // Valid PDF
+                // Valid PDF
             } else {
                 if (@getimagesizefromstring($content) === false) {
                     $msg = "Invalid image data (getimagesizefromstring failed) for $url";
@@ -190,23 +200,23 @@ class ImageService
                     $ext = "jpg"; // Fallback
                 }
             }
-            
+
             if (!file_exists($fullDir)) {
                 mkdir($fullDir, 0755, true);
             }
 
             $finalName = $cleanName . "." . $ext;
             $localPath = $fullDir . "/" . $finalName;
-            
+
             // Re-check existence if we didn't have extension before
             if (file_exists($localPath) && !$this->overwriteExisting) {
                 return $this->baseUrl . "/" . $datePath . "/" . $finalName;
             }
-            
+
             file_put_contents($localPath, $content);
 
             return $this->baseUrl . "/" . $datePath . "/" . $finalName;
-            
+
         } catch (\Exception $e) {
             $msg = "Exception downloading $url: " . $e->getMessage();
             $this->errors[] = $msg;
