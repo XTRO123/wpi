@@ -26,7 +26,21 @@ class ImageService
 
     public function __construct()
     {
-        $this->basePath = dirname(__DIR__, 6) . "/assets/images/wpi";
+        // Try to determine the correct base path using standard CMS constants/helpers
+        if (defined('MODX_BASE_PATH')) {
+            $root = MODX_BASE_PATH;
+        } elseif (function_exists('base_path')) {
+            $root = base_path();
+        } else {
+            // Fallback if no environment - assume 6 levels up to public (or 5 to core, then up)
+            // If dirname(6) is public, use it. If dirname(5) is core, go up one more.
+            $root = dirname(__DIR__, 6);
+        }
+
+        // Ensure standard separator and no trailing slash
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+
+        $this->basePath = $root . "/assets/images/wpi";
         $this->baseUrl = "assets/images/wpi";
 
         if (!file_exists($this->basePath)) {
@@ -58,6 +72,7 @@ class ImageService
         // Rate Limiting
         usleep(200000);
 
+        // Forced HTTPS upgrade logic removed
         /*
         if (!str_starts_with($url, "https")) {
             if (str_starts_with($url, "http")) {
