@@ -21,8 +21,9 @@ Add the package repository to your `core/custom/composer.json`:
 
 ```json
 {
+    "name": "evolutioncms/custom",
     "provide": {
-        "evolution-cms/evolution": "3.1.*"
+        "evolution-cms/evolution": "3.1.3*"
     },
     "repositories": [
         {
@@ -30,7 +31,11 @@ Add the package repository to your `core/custom/composer.json`:
             "url": "https://github.com/XTRO123/wpi"
         }
     ],
-    "require": {}
+    "require": {
+    },
+    "autoload": {
+        "psr-4": []
+    }
 }
 ```
 
