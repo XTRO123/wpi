@@ -32,6 +32,7 @@ Add the package repository to your `core/custom/composer.json`:
         }
     ],
     "require": {
+        "xtro123/wpi": "dev-main"
     },
     "autoload": {
         "psr-4": []
