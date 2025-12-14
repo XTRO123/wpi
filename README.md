@@ -1,6 +1,6 @@
 # WPI - WordPress Import Tool for Evolution CMS CE
 
-A powerful tool to migrate content from WordPress to Evolution CMS 3.1.x.
+A powerful tool to migrate content from WordPress to Evolution CMS CE 3.1.30.
 
 ## Features
 
@@ -23,7 +23,7 @@ Add the package repository to your `core/custom/composer.json`:
 {
     "name": "evolutioncms/custom",
     "provide": {
-        "evolution-cms/evolution": "3.1.*"
+        "evolution-cms/evolution": "3.1.30"
     },
     "repositories": [
         {
@@ -98,7 +98,7 @@ php core/artisan wpi:import export_data.xml --rollback
 ## Requirements
 
 - PHP >= 8.2
-- Evolution CMS CE >= 3.1.x
+- Evolution CMS CE >= 3.1.30
 - WordPress Export (WXR) Version 1.2+ (WordPress 6.0+)
 
 ## License
