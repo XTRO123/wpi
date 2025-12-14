@@ -22,7 +22,7 @@ Add the package repository to your `core/custom/composer.json`:
 ```json
 {
     "provide": {
-        "evolution-cms/evolution": "3.1.**"
+        "evolution-cms/evolution": "3.1.*"
     },
     "repositories": [
         {
